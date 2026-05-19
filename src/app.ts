@@ -6,6 +6,8 @@ import morgan from 'morgan';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from '@/config/index.js';
 import logger from '@/utils/logger.js';
+import prisma from '@/config/db.js';
+import redis from '@/config/redis.js';
 import statusRoutes from '@/routes/status.routes.js';
 import { errorResponse } from '@/utils/api-response.js';
 
@@ -33,11 +35,6 @@ app.use(
 
 // Routes
 app.use('/api/v1', statusRoutes);
-
-import prisma from '@/config/db.js';
-import redis from '@/config/redis.js';
-
-// ... (existing imports)
 
 // Healthcheck
 app.get('/health', async (_req: Request, res: Response) => {
