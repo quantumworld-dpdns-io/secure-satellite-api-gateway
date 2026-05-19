@@ -1,6 +1,5 @@
 import { createProxyMiddleware, Options } from 'http-proxy-middleware';
 import Opossum from 'opossum';
-import { Request, Response, NextFunction } from 'express';
 import logger from '@/utils/logger.js';
 import { UpstreamConfig } from '@/config/upstreams.js';
 import { errorResponse } from '@/utils/api-response.js';
@@ -27,7 +26,7 @@ export const getProxyMiddleware = (config: UpstreamConfig) => {
     changeOrigin: true,
     pathRewrite: config.pathRewrite as any,
     on: {
-      proxyReq: (proxyReq: any, req: Request) => {
+      proxyReq: (proxyReq: any, req: any) => {
         const requestId = req.headers['x-request-id'];
         if (requestId) proxyReq.setHeader('X-Request-ID', requestId);
         
@@ -38,7 +37,7 @@ export const getProxyMiddleware = (config: UpstreamConfig) => {
 
         logger.info(`Proxying ${req.method} ${req.url} -> ${config.target}`);
       },
-      error: (err: Error, req: Request, res: Response) => {
+      error: (err: any, req: any, res: any) => {
         logger.error(`Proxy Error (${config.id}):`, err.message);
         errorResponse(res, 'Gateway error connecting to downstream service', err.message, 502);
       },
