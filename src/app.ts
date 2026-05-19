@@ -18,27 +18,37 @@ import { errorResponse } from '@/utils/api-response.js';
 import { globalRateLimiter } from '@/middleware/rate-limiter.js';
 import { validateContentType } from '@/middleware/security.js';
 
+import { register, httpRequestsTotal, httpRequestDurationMicroseconds } from '@/utils/metrics.js';
+
 const app = express();
+
+// Prometheus Metrics Endpoint
+app.get('/metrics', async (_req, res) => {
+  res.setHeader('Content-Type', register.contentType);
+  res.send(await register.metrics());
+});
 
 // Essential middlewares
 app.use(helmet());
 app.use(cors());
 app.use(compression());
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// Security protections
-app.use(hpp());
-app.use(xss() as any);
-app.use(mongoSanitize());
-app.use(validateContentType);
+// Metrics tracking middleware
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = (Date.now() - start) / 1000;
+    const route = req.route ? req.route.path : req.path;
+    httpRequestsTotal.inc({ method: req.method, route, status: res.statusCode });
+    httpRequestDurationMicroseconds.observe({ method: req.method, route, status: res.statusCode }, duration);
+  });
+  next();
+});
 
-// Rate limiting
-app.use(globalRateLimiter);
-
-// Request ID middleware
+// Request ID & Lineage ID middleware
 app.use((req, _res, next) => {
   req.headers['x-request-id'] = req.headers['x-request-id'] || uuidv4();
+  req.headers['x-lineage-id'] = req.headers['x-lineage-id'] || uuidv4();
   next();
 });
 
