@@ -34,9 +34,38 @@ app.use(
 // Routes
 app.use('/api/v1', statusRoutes);
 
+import prisma from '@/config/db.js';
+import redis from '@/config/redis.js';
+
+// ... (existing imports)
+
 // Healthcheck
-app.get('/health', (_req: Request, res: Response) => {
-  res.status(200).json({ status: 'UP', timestamp: new Date().toISOString() });
+app.get('/health', async (_req: Request, res: Response) => {
+  const health = {
+    status: 'UP',
+    timestamp: new Date().toISOString(),
+    services: {
+      database: 'DOWN',
+      redis: 'DOWN',
+    },
+  };
+
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    health.services.database = 'UP';
+  } catch (err) {
+    logger.error('Healthcheck DB Error:', err);
+  }
+
+  try {
+    await redis.ping();
+    health.services.redis = 'UP';
+  } catch (err) {
+    logger.error('Healthcheck Redis Error:', err);
+  }
+
+  const isUp = health.services.database === 'UP' && health.services.redis === 'UP';
+  res.status(isUp ? 200 : 503).json(health);
 });
 
 // Generic error handler
