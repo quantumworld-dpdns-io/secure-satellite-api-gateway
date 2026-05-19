@@ -12,7 +12,10 @@ export const globalRateLimiter = rateLimit({
     // @ts-expect-error - ioredis type mismatch in rate-limit-redis
     sendCommand: (...args: string[]) => redis.call(...args),
   }),
-  handler: (req, res) => {
+  handler: (req: Request, res: Response) => {
     errorResponse(res, 'Too many requests, please try again later.', null, 429);
+  },
+});
+r.', null, 429);
   },
 });
