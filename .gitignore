@@ -23,3 +23,5 @@ vendor/
 .env.*
 !.env.example
 script/.ignore_auto_commit.sh
+
+/src/generated/prisma

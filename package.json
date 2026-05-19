@@ -35,10 +35,14 @@
   "homepage": "https://github.com/quantumworld-dpdns-io/secure-satellite-api-gateway#readme",
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.12",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^20.12.7",
     "@types/supertest": "^6.0.2",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^7.7.0",
     "@typescript-eslint/parser": "^7.7.0",
     "eslint": "^8.57.0",
@@ -57,10 +61,18 @@
     "typescript-eslint": "^7.7.0"
   },
   "dependencies": {
+    "@prisma/client": "^7.8.0",
+    "compression": "^1.8.1",
+    "cors": "^2.8.6",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.10.1",
+    "morgan": "^1.10.1",
     "pino": "^8.20.0",
     "pino-pretty": "^11.0.0",
+    "prisma": "^7.8.0",
+    "uuid": "^14.0.0",
     "zod": "^3.22.4"
   }
 }
