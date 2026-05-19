@@ -9,6 +9,9 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   DATABASE_URL: z.string().optional(),
   REDIS_URL: z.string().optional(),
+  JWT_SECRET: z.string().default('super-secret-satellite-key'),
+  JWT_EXPIRES_IN: z.string().default('1h'),
+  JWKS_URI: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
