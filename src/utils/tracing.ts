@@ -17,7 +17,7 @@ export const initTracing = () => {
   process.on('SIGTERM', () => {
     sdk.shutdown()
       .then(() => logger.info('Tracing terminated'))
-      .catch((error) => logger.error('Error terminating tracing', error))
+      .catch((error: Error) => logger.error('Error terminating tracing', error))
       .finally(() => process.exit(0));
   });
 };
