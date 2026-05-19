@@ -22,3 +22,4 @@ vendor/
 .env
 .env.*
 !.env.example
+script/.ignore_auto_commit.sh
