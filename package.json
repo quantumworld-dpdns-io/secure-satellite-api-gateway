@@ -1,0 +1,36 @@
+{
+  "name": "secure-satellite-api-gateway",
+  "version": "1.0.0",
+  "description": "> Secure satellite API gateway – normalizes access to telemetry and mission data with fine-grained authorization and lineage tracking",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quantumworld-dpdns-io/secure-satellite-api-gateway.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/quantumworld-dpdns-io/secure-satellite-api-gateway/issues"
+  },
+  "homepage": "https://github.com/quantumworld-dpdns-io/secure-satellite-api-gateway#readme",
+  "devDependencies": {
+    "@types/node": "^25.9.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/parser": "^8.59.4",
+    "eslint": "^10.4.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  }
+}
