@@ -13,6 +13,7 @@ import prisma from '@/config/db.js';
 import redis from '@/config/redis.js';
 import statusRoutes from '@/routes/status.routes.js';
 import authRoutes from '@/routes/auth.routes.js';
+import proxyRoutes from '@/routes/proxy.routes.js';
 import { errorResponse } from '@/utils/api-response.js';
 import { globalRateLimiter } from '@/middleware/rate-limiter.js';
 import { validateContentType } from '@/middleware/security.js';
@@ -51,6 +52,7 @@ app.use(
 // Routes
 app.use('/api/v1', statusRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1', proxyRoutes);
 
 // Healthcheck
 app.get('/health', async (_req: Request, res: Response) => {
