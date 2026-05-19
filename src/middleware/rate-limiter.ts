@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
 import redis from '@/config/redis.js';
@@ -14,8 +15,5 @@ export const globalRateLimiter = rateLimit({
   }),
   handler: (req: Request, res: Response) => {
     errorResponse(res, 'Too many requests, please try again later.', null, 429);
-  },
-});
-r.', null, 429);
   },
 });

@@ -3,6 +3,9 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
+import hpp from 'hpp';
+import xss from 'xss-clean';
+import mongoSanitize from 'express-mongo-sanitize';
 import { v4 as uuidv4 } from 'uuid';
 import { config } from '@/config/index.js';
 import logger from '@/utils/logger.js';
@@ -10,6 +13,8 @@ import prisma from '@/config/db.js';
 import redis from '@/config/redis.js';
 import statusRoutes from '@/routes/status.routes.js';
 import { errorResponse } from '@/utils/api-response.js';
+import { globalRateLimiter } from '@/middleware/rate-limiter.js';
+import { validateContentType } from '@/middleware/security.js';
 
 const app = express();
 
@@ -17,8 +22,17 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// Security protections
+app.use(hpp());
+app.use(xss() as any); // xss-clean types are sometimes tricky with ESM
+app.use(mongoSanitize());
+app.use(validateContentType);
+
+// Rate limiting
+app.use(globalRateLimiter);
 
 // Request ID middleware
 app.use((req, _res, next) => {
