@@ -1,7 +1,10 @@
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+import AjvPkg from 'ajv';
+import addFormatsPkg from 'ajv-formats';
 import { Request, Response, NextFunction } from 'express';
 import { errorResponse } from '@/utils/api-response.js';
+
+const Ajv = (AjvPkg as any).default || AjvPkg;
+const addFormats = (addFormatsPkg as any).default || addFormatsPkg;
 
 const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
