@@ -1,10 +1,14 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { config } from '@/config/index.js';
 import logger from '@/utils/logger.js';
+import statusRoutes from '@/routes/status.routes.js';
 
 const app = express();
 
 app.use(express.json());
+
+// Routes
+app.use('/api/v1', statusRoutes);
 
 // Healthcheck
 app.get('/health', (req: Request, res: Response) => {
