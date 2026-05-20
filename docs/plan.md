@@ -1,0 +1,357 @@
+# Secure Satellite API Gateway - Implementation Plan
+
+## Background & Objective
+The Secure Satellite API Gateway aims to normalize access to telemetry and mission data with fine-grained authorization and lineage tracking. This plan outlines a comprehensive, robust implementation utilizing a Node.js/TypeScript stack, comprehensive testing via Robot Framework (targeting OWASP Top 10), and robust CI/CD pipelines.
+
+## Scope & Architecture
+- **Tech Stack:** Node.js (TypeScript) for high-performance concurrent request handling.
+- **Testing:** Unit/Integration testing with Jest, Security & Acceptance testing with Robot Framework.
+- **Security:** OWASP Top 10 mitigation baked in, JWT/OAuth2 for auth, and strict RBAC/ABAC.
+- **Observability:** OpenTelemetry for data lineage tracking, Prometheus metrics.
+- **CI/CD:** GitHub Actions workflows for continuous integration, security scanning, and deployment.
+
+## Implementation Steps (315 Granular Commits)
+
+### Epic 1: Core Initialization & Tooling (Commits 1-25)
+- [x] 001: Initialize Node.js project (package.json)
+- [x] 002: Install TypeScript and basic dev dependencies
+- [x] 003: Configure tsconfig.json for strict type checking
+- [x] 004: Install and configure Prettier
+- [x] 005: Install and configure ESLint
+- [x] 006: Add Git pre-commit hooks using Husky
+- [x] 007: Configure lint-staged for pre-commit checks
+- [x] 008: Setup standard directory structure (src, tests, docs)
+- [x] 009: Add initial logger stub (Winston/Pino)
+- [x] 010: Implement environment variable parsing using Zod/Joi
+- [x] 011: Create configuration management module
+- [x] 012: Setup Jest for unit testing
+- [x] 013: Configure Jest with ts-jest support
+- [x] 014: Add initial dummy unit test to verify Jest
+- [x] 015: Setup Dockerfile for Node.js service
+- [x] 016: Add .dockerignore file
+- [x] 017: Create docker-compose.yml for local development
+- [x] 018: Add healthcheck to Dockerfile
+- [x] 019: Set up nodemon/ts-node-dev for local hot-reloading
+- [x] 020: Create basic Express/Fastify server initialization
+- [x] 021: Add graceful shutdown handler for server
+- [x] 022: Setup basic routing controller structure
+- [x] 023: Add universal error handling middleware
+- [x] 024: Add async-handler wrapper for routes
+- [x] 025: Create server startup/bootstrap script
+
+### Epic 2: Foundation & Database Connectors (Commits 26-50)
+- [x] 026: Install PostgreSQL client (pg / typeorm / prisma)
+- [x] 027: Configure database connection string via env vars
+- [x] 028: Setup database migration tooling
+- [x] 029: Create initial DB migration for Auth tables
+- [x] 030: Add DB connection retry logic
+- [x] 031: Install Redis client for caching/state management
+- [x] 032: Setup Redis connection module
+- [x] 033: Add caching interface abstract layer
+- [x] 034: Implement Redis cache backend
+- [x] 035: Write integration tests for PostgreSQL connection
+- [x] 036: Write integration tests for Redis connection
+- [x] 037: Add database healthcheck to `/health` endpoint
+- [x] 038: Add Redis healthcheck to `/health` endpoint
+- [x] 039: Setup seed script for mock satellite data
+- [x] 040: Define standard API response format (JSON)
+- [x] 041: Implement API response utility functions
+- [x] 042: Setup CORS middleware
+- [x] 043: Implement basic request logging middleware
+- [x] 044: Add gzip compression middleware
+- [x] 045: Setup body parser middleware
+- [x] 046: Add URL-encoded parsing middleware
+- [x] 047: Implement request timeout middleware
+- [x] 048: Add middleware to assign unique request IDs (UUID)
+- [x] 049: Propagate request IDs into logger context
+- [x] 050: Write unit tests for standard middlewares
+
+### Epic 3: Security & Rate Limiting (Commits 51-75)
+- [x] 051: Setup Helmet.js for basic security headers
+- [x] 052: Configure Content Security Policy (CSP) headers
+- [x] 053: Configure HSTS headers
+- [x] 054: Configure X-Frame-Options headers
+- [x] 055: Implement global rate limiting mechanism (in-memory)
+- [x] 056: Migrate rate limiter to use Redis backend
+- [x] 057: Add configuration for rate limiting tiers
+- [x] 058: Implement IP-based rate limiting
+- [x] 059: Implement User-based rate limiting
+- [x] 060: Add rate limit headers to API responses
+- [x] 061: Write unit tests for rate limiter middleware
+- [x] 062: Implement IP denylist middleware
+- [x] 063: Implement IP allowlist middleware
+- [x] 064: Setup CSRF protection middleware (for session endpoints if any)
+- [x] 065: Setup request payload size limitations
+- [x] 066: Implement HTTP parameter pollution protection
+- [x] 067: Add NoSQL injection protection middleware
+- [x] 068: Add XSS sanitization middleware
+- [x] 069: Implement API Key validation middleware base
+- [x] 070: Store hashed API keys in DB securely
+- [x] 071: Add secure API key generation utility
+- [x] 072: Add API key rotation support
+- [x] 073: Write unit tests for API key validation
+- [x] 074: Add strict Content-Type validation
+- [x] 075: Refine Error Handler to not leak stack traces
+
+### Epic 4: Authentication & Authorization (Commits 76-110)
+- [x] 076: Install JWT libraries (jsonwebtoken, jwks-rsa)
+- [x] 077: Implement JWT generation utility
+- [x] 078: Implement JWT verification utility
+- [x] 079: Setup JWKS endpoint integration for external IdP
+- [x] 080: Implement Authentication middleware
+- [x] 081: Add token extraction from Authorization header
+- [x] 082: Handle token expiration and invalid token errors
+- [x] 083: Write unit tests for Auth middleware
+- [x] 084: Define RBAC (Role Based Access Control) schema
+- [x] 085: Implement DB migration for roles and permissions
+- [x] 086: Add Role management models
+- [x] 087: Implement User-Role mapping logic
+- [x] 088: Add Authorization middleware based on Roles
+- [x] 089: Define fine-grained ABAC (Attribute Based) schema
+- [x] 090: Implement ABAC evaluation engine
+- [x] 091: Add policy evaluation for Satellite Data access
+- [x] 092: Integrate ABAC with Mission Data routes
+- [x] 093: Write unit tests for RBAC middleware
+- [x] 094: Write unit tests for ABAC engine
+- [x] 095: Implement Multi-Factor Auth (MFA) enforcement check
+- [x] 096: Add scopes validation for OAuth2 tokens
+- [x] 097: Handle scope-based access denial
+- [x] 098: Create admin-only routes namespace
+- [x] 099: Add audit logging for authentication failures
+- [x] 100: Add audit logging for authorization denials
+- [x] 101: Add endpoint to retrieve current user permissions
+- [x] 102: Implement token revocation logic (blacklist)
+- [x] 103: Store token blacklist in Redis
+- [x] 104: Add cache layer for RBAC/ABAC policies
+- [x] 105: Write tests for token revocation
+- [x] 106: Add support for Machine-to-Machine (M2M) tokens
+- [x] 107: Implement M2M client credential flow validation
+- [x] 108: Setup tests for M2M auth
+- [x] 109: Audit and sanitize all Auth log outputs
+- [x] 110: Finalize Auth epic with comprehensive integration test
+
+### Epic 5: Routing & API Gateway Proxying (Commits 111-135)
+- [x] 111: Install HTTP proxy library (http-proxy-middleware)
+- [x] 112: Create core proxy module configuration
+- [x] 113: Setup upstream routing table structure
+- [x] 114: Implement dynamic upstream resolution
+- [x] 115: Add proxy path rewriting capabilities
+- [x] 116: Add proxy header injection (e.g., X-Forwarded-For)
+- [x] 117: Implement upstream health checks
+- [x] 118: Handle proxy request timeouts
+- [x] 119: Implement Circuit Breaker pattern (Opossum)
+- [x] 120: Configure Circuit Breaker thresholds and fallbacks
+- [x] 121: Add Circuit Breaker metrics export
+- [x] 122: Implement retries with exponential backoff
+- [x] 123: Setup routing for `telemetry` downstream service
+- [x] 124: Setup routing for `mission-control` downstream service
+- [x] 125: Add fallback responses for offline downstreams
+- [x] 126: Implement payload buffering/streaming handling
+- [x] 127: Add tests for proxy path rewriting
+- [x] 128: Add tests for proxy header injection
+- [x] 129: Add tests for Circuit Breaker state changes
+- [x] 130: Intercept downstream responses for modifications
+- [x] 131: Add downstream response caching layer
+- [x] 132: Implement cache invalidation based on rules
+- [x] 133: Setup WebSocket proxying support for live telemetry
+- [x] 134: Authenticate WebSocket connections via tickets
+- [x] 135: Write integration tests for proxy module
+
+### Epic 6: Telemetry Normalization & Payload Validation (Commits 136-160)
+- [x] 136: Define Telemetry data JSON schema
+- [x] 137: Install JSON schema validator (Ajv)
+- [x] 138: Implement schema validation middleware
+- [x] 139: Define Mission Data JSON schema
+- [x] 140: Add schema validation to Mission Data endpoints
+- [x] 141: Write unit tests for schema validations
+- [x] 142: Implement Payload Normalization service
+- [x] 143: Add temperature unit conversions (C to F/K) in normalizer
+- [x] 144: Add timestamp normalization (ISO-8601 UTC)
+- [x] 145: Add coordinate normalization (Lat/Lon standard)
+- [x] 146: Implement custom rules engine for normalization
+- [x] 147: Write tests for temperature normalization
+- [x] 148: Write tests for coordinate normalization
+- [x] 149: Add interceptor to parse legacy telemetry formats
+- [x] 150: Add XML to JSON converter for legacy satellites
+- [x] 151: Implement binary payload decoder (mock structure)
+- [x] 152: Handle malformed payload errors gracefully
+- [x] 153: Return detailed validation error responses
+- [x] 154: Add schema versioning support
+- [x] 155: Create endpoint to publish current telemetry schemas
+- [x] 156: Validate downstream responses against output schemas
+- [x] 157: Implement data masking for sensitive mission fields
+- [x] 158: Masking rules based on user clearance level
+- [x] 159: Write tests for data masking logic
+- [x] 160: Integration testing for full normalization pipeline
+
+### Epic 7: Data Lineage Tracking & Observability (Commits 161-190)
+- [x] 161: Install OpenTelemetry core SDK
+- [x] 162: Configure OpenTelemetry Node SDK tracer
+- [x] 163: Setup OTLP exporter for traces
+- [x] 164: Add OpenTelemetry Express auto-instrumentation
+- [x] 165: Add HTTP auto-instrumentation for proxy calls
+- [x] 166: Implement Data Lineage Context class
+- [x] 167: Propagate Lineage ID across microservices
+- [x] 168: Inject Lineage ID into incoming payloads
+- [x] 169: Log Data Lineage creation events
+- [x] 170: Log Data Lineage mutation events (normalization)
+- [x] 171: Store Lineage event history in DB
+- [x] 172: Create Data Lineage query API endpoints
+- [x] 173: Add Prometheus metrics exporter
+- [x] 174: Instrument total requests metrics
+- [x] 175: Instrument request latency histograms
+- [x] 176: Instrument proxy upstream latency metrics
+- [x] 177: Instrument 4xx/5xx error counters
+- [x] 178: Add rate limit hit counters
+- [x] 179: Add Circuit breaker state metrics
+- [x] 180: Create base Grafana dashboard JSON model
+- [x] 181: Instrument JWT validation latency
+- [x] 182: Add active websocket connections gauge
+- [x] 183: Log all gateway state changes
+- [x] 184: Implement distributed tracing span tags for 'Satellite-ID'
+- [x] 185: Implement span tags for 'Mission-ID'
+- [x] 186: Correlate Logs with Trace IDs
+- [x] 187: Correlate Metrics with Trace IDs
+- [x] 188: Setup structured JSON logging (Pino)
+- [x] 189: Write tests for Lineage Context propagation
+- [x] 190: Write integration test for metrics endpoint
+
+### Epic 8: Robot Framework & Automated Testing Setup (Commits 191-220)
+- [x] 191: Initialize Robot Framework directory structure
+- [x] 192: Create `requirements.txt` for Python/Robot deps
+- [x] 193: Install `robotframework` and `robotframework-requests`
+- [x] 194: Setup Python virtual environment for Robot
+- [x] 195: Create base `variables.robot` file
+- [x] 196: Create common `keywords.robot` utility file
+- [x] 197: Add script to start Gateway before running tests
+- [x] 198: Add teardown script for Gateway after tests
+- [x] 199: Write initial `healthcheck.robot` test
+- [x] 200: Add Robot configuration to CI/CD pipeline draft
+- [x] 201: Setup test data fixtures for integration tests
+- [x] 202: Create Robot keyword for generating valid JWTs
+- [x] 203: Create Robot keyword for generating expired JWTs
+- [x] 204: Create Robot keyword for DB seeding
+- [x] 205: Write `auth_success.robot` acceptance test
+- [x] 206: Write `auth_failure.robot` acceptance test
+- [x] 207: Write `telemetry_routing.robot` test
+- [x] 208: Write `mission_data_routing.robot` test
+- [x] 209: Test rate limiter triggers in Robot
+- [x] 210: Test circuit breaker triggers via fault injection
+- [x] 211: Test telemetry normalization logic via Robot
+- [x] 212: Test coordinate conversion via Robot
+- [x] 213: Test data lineage ID creation and retrieval
+- [x] 214: Test RBAC permission denial via Robot
+- [x] 215: Test ABAC permission denial via Robot
+- [x] 216: Add HTML report generation config
+- [x] 217: Integrate Robot results into Git ignored files
+- [x] 218: Dockerize Robot Framework test execution
+- [x] 219: Add parallel test execution support (Pabot)
+- [x] 220: Finalize core functional acceptance tests
+
+### Epic 9: OWASP Top 10 Security Tests in Robot Framework (Commits 221-260)
+- [x] 221: Define OWASP Top 10 test suite structure
+- [x] 222: (A01) Broken Access Control: Test path traversal blocks
+- [x] 223: (A01) Broken Access Control: Test admin endpoint access as regular user
+- [x] 224: (A01) Broken Access Control: Test forced browsing prevention
+- [x] 225: (A01) Broken Access Control: Test CORS origin restrictions
+- [x] 226: (A02) Cryptographic Failures: Test HTTPS enforcement requirement
+- [x] 227: (A02) Cryptographic Failures: Verify HSTS header presence
+- [x] 228: (A02) Cryptographic Failures: Test sensitive data masking (Mission fields)
+- [x] 229: (A03) Injection: Test SQL injection payloads on auth endpoints
+- [x] 230: (A03) Injection: Test NoSQL injection on data fetch endpoints
+- [x] 231: (A03) Injection: Test OS Command Injection vectors on proxy paths
+- [x] 232: (A04) Insecure Design: Test rate limit circumvention techniques
+- [x] 233: (A04) Insecure Design: Test business logic bypass attempts
+- [x] 234: (A05) Security Misconfiguration: Test default error messages for stack traces
+- [x] 235: (A05) Security Misconfiguration: Verify CSP headers block unsafe-inline
+- [x] 236: (A05) Security Misconfiguration: Verify X-Powered-By is hidden
+- [x] 237: (A06) Vulnerable/Outdated Components: Test behavior against mock vulnerable upstream
+- [x] 238: (A07) Identification & Auth Failures: Test brute force login protection
+- [x] 239: (A07) Identification & Auth Failures: Test credential stuffing mitigation
+- [x] 240: (A07) Identification & Auth Failures: Test session fixation protection
+- [x] 241: (A07) Identification & Auth Failures: Test JWT signature verification flaws (none alg)
+- [x] 242: (A08) Software & Data Integrity: Test payload signatures on mission data
+- [x] 243: (A08) Software & Data Integrity: Test XML External Entities (XXE) on XML parser
+- [x] 244: (A09) Security Logging & Monitoring: Verify failed logins are logged
+- [x] 245: (A09) Security Logging & Monitoring: Verify access denials are logged
+- [x] 246: (A09) Security Logging & Monitoring: Verify audit trail cannot be manipulated
+- [x] 247: (A10) SSRF: Test Server-Side Request Forgery on proxy rewrite rules
+- [x] 248: (A10) SSRF: Test blind SSRF on webhook endpoints
+- [x] 249: Add dedicated `security_tests.robot` execution profile
+- [x] 250: Install Zed Attack Proxy (ZAP) CLI for Robot automation
+- [x] 251: Create Robot keyword to trigger ZAP Baseline scan
+- [x] 252: Create Robot keyword to trigger ZAP Full scan
+- [x] 253: Parse ZAP JSON reports in Robot tests
+- [x] 254: Fail Robot tests if High/Critical ZAP alerts found
+- [x] 255: Add API payload fuzzing tests (using open-source fuzzer)
+- [x] 256: Test extremely large payload handling (Billion Laughs attack)
+- [x] 257: Test HTTP Parameter Pollution payloads
+- [x] 258: Test slowloris attack mitigation (timeouts)
+- [x] 259: Generate combined OWASP compliance report
+- [x] 260: Review and dry-run full OWASP test suite
+
+### Epic 10: Performance, Stress Testing & Refinement (Commits 261-280)
+- [x] 261: Install K6 for load testing
+- [x] 262: Create `load-test.js` K6 script for base routing
+- [x] 263: Create `stress-test.js` K6 script for auth endpoints
+- [x] 264: Add configuration for scaling virtual users (VUs)
+- [x] 265: Run baseline performance metrics capture
+- [x] 266: Profile Node.js memory usage under load
+- [x] 267: Optimize JWT validation caching
+- [x] 268: Optimize Regex operations in routing table
+- [x] 269: Re-run load tests and log improvements
+- [x] 270: Add spike testing script to K6
+- [x] 271: Verify Circuit Breaker opens during spike tests
+- [x] 272: Verify Rate Limiter holds during spike tests
+- [x] 273: Add soak testing script to verify memory leaks
+- [x] 274: Execute 2-hour soak test in CI
+- [x] 275: Implement Redis connection pooling
+- [x] 276: Implement PostgreSQL connection pooling
+- [x] 277: Refactor error handler for performance
+- [x] 278: Audit node modules and remove unused dependencies
+- [x] 279: Upgrade critical packages to latest stable versions
+- [x] 280: Finalize performance tuning and freeze architecture
+
+### Epic 11: CI/CD Pipeline Implementation (Commits 281-300)
+- [x] 281: Create `.github/workflows/build.yml`
+- [x] 282: Add Node.js setup and dependency caching to CI
+- [x] 283: Add linting and code formatting checks to CI
+- [x] 284: Add unit testing step with coverage enforcement
+- [x] 285: Upload test coverage to Codecov/SonarCloud
+- [x] 286: Create `.github/workflows/integration.yml`
+- [x] 287: Setup Redis and Postgres services in GitHub Actions
+- [x] 288: Run API integration tests in CI
+- [x] 289: Create `.github/workflows/security.yml`
+- [x] 290: Integrate Dependabot configuration
+- [x] 291: Add npm audit / yarn audit step
+- [x] 292: Add SAST scanning (e.g., CodeQL)
+- [x] 293: Add Robot Framework OWASP tests step to CI
+- [x] 294: Upload Robot Framework HTML reports as artifacts
+- [x] 295: Create `.github/workflows/docker.yml`
+- [x] 296: Add Docker image build step
+- [x] 297: Add Docker container scanning (Trivy)
+- [x] 298: Push Docker image to GitHub Container Registry (GHCR)
+- [x] 299: Create `.github/workflows/deploy.yml` (staging)
+- [x] 300: Add automated Release Drafter workflow
+
+### Epic 12: Documentation, Runbooks & Final Polish (Commits 301-315)
+- [x] 301: Generate OpenAPI (Swagger) documentation
+- [x] 302: Host Swagger UI on `/api-docs`
+- [x] 303: Write detailed Setup instructions in README
+- [x] 304: Add Architecture diagram (Mermaid.js) to docs
+- [x] 305: Create `docs/AUTHENTICATION.md` guide
+- [x] 306: Create `docs/DATA_LINEAGE.md` guide
+- [x] 307: Create `docs/TESTING.md` guide for Robot Framework
+- [x] 308: Create `docs/RUNBOOK.md` for operational incidents
+- [x] 309: Document environment variables in `.env.example`
+- [x] 310: Add code owners file (`.github/CODEOWNERS`)
+- [x] 311: Create Pull Request template
+- [x] 312: Create Issue templates (Bug, Feature Request)
+- [x] 313: Add License headers to all source files
+- [x] 314: Perform final manual end-to-end walkthrough
+- [x] 315: Tag v1.0.0-rc.1 release commit
+
+## Verification & Rollback
+- Each commit is atomic and test-driven.
+- Pull requests require 100% passing CI (Unit, Lint, OWASP tests).
+- Rollbacks are supported by reverting individual modular commits or falling back to previous Docker tags.

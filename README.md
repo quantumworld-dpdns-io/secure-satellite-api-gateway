@@ -1,34 +1,48 @@
-# secure-satellite-api-gateway
+# Secure Satellite API Gateway
 
 > Secure satellite API gateway – normalizes access to telemetry and mission data with fine-grained authorization and lineage tracking
 
-## Overview
+## Key Features
+- **Security First:** Built-in OWASP Top 10 protection, JWT/OAuth2 Auth, and strict RBAC/ABAC.
+- **Observability:** Distributed tracing with OpenTelemetry and metrics with Prometheus.
+- **Resilience:** Circuit Breaker pattern and Redis-backed rate limiting.
+- **Data Integrity:** JSON Schema validation and automated payload normalization.
+- **Automated Testing:** Comprehensive suite with Jest and Robot Framework.
 
-This repository is part of the [quantumworld-dpdns-io](https://github.com/quantumworld-dpdns-io) Wild SaaS & Tech Development initiative.
+## Quick Start
 
-## Getting Started
+### Prerequisites
+- Node.js 20+
+- Docker & Docker Compose
+- PostgreSQL & Redis
 
+### Local Setup
 ```bash
-# Clone the repo
-git clone https://github.com/quantumworld-dpdns-io/secure-satellite-api-gateway.git
-cd secure-satellite-api-gateway
+# Install dependencies
+npm install
+
+# Setup database
+npx prisma migrate dev
+npx prisma db seed
+
+# Run in development mode
+npm run dev
 ```
 
-## Project Structure
+### Documentation
+- API Docs: `http://localhost:3000/api-docs`
+- Metrics: `http://localhost:3000/metrics`
+- Runbook: [docs/RUNBOOK.md](docs/RUNBOOK.md)
 
+## Testing
+```bash
+# Unit Tests
+npm test
+
+# Performance Tests
+# Requires k6 installed locally
+k6 run tests/performance/load-test.js
 ```
-.
-├── src/          # Application source code
-├── docs/         # Architecture decisions, API specs, runbooks
-├── tests/        # Unit / integration / e2e tests
-└── .github/
-    └── workflows/ # CI/CD pipelines
-```
-
-## Contributing
-
-Please read [CONTRIBUTING.md](docs/CONTRIBUTING.md) before opening a pull request.
 
 ## License
-
 [MIT](LICENSE)
