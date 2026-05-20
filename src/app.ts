@@ -1,3 +1,8 @@
+import swaggerUiPkg from 'swagger-ui-express';
+import { swaggerSpec } from '@/config/swagger.js';
+
+const swaggerUi = (swaggerUiPkg as any).default || swaggerUiPkg;
+
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -20,9 +25,6 @@ import { validateContentType } from '@/middleware/security.js';
 
 import { register, httpRequestsTotal, httpRequestDurationMicroseconds } from '@/utils/metrics.js';
 
-import swaggerUi from 'swagger-ui-express';
-import { swaggerSpec } from '@/config/swagger.js';
-
 const app = express();
 
 // API Documentation
@@ -38,18 +40,17 @@ app.get('/metrics', async (_req, res) => {
 app.use(helmet());
 app.use(cors());
 app.use(compression());
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// Metrics tracking middleware
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = (Date.now() - start) / 1000;
-    const route = req.route ? req.route.path : req.path;
-    httpRequestsTotal.inc({ method: req.method, route, status: res.statusCode });
-    httpRequestDurationMicroseconds.observe({ method: req.method, route, status: res.statusCode }, duration);
-  });
-  next();
-});
+// Security protections
+app.use(hpp());
+app.use(xss() as any);
+app.use(mongoSanitize());
+app.use(validateContentType);
+
+// Rate limiting
+app.use(globalRateLimiter);
 
 // Request ID & Lineage ID middleware
 app.use((req, _res, next) => {
