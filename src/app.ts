@@ -20,7 +20,13 @@ import { validateContentType } from '@/middleware/security.js';
 
 import { register, httpRequestsTotal, httpRequestDurationMicroseconds } from '@/utils/metrics.js';
 
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from '@/config/swagger.js';
+
 const app = express();
+
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Prometheus Metrics Endpoint
 app.get('/metrics', async (_req, res) => {
