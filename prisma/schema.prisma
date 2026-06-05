@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  roleId    String
+  role      Role     @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  permissions Json
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("roles")
+}
+
+model Satellite {
+  id          String   @id @default(uuid())
+  name        String
+  noradId     Int      @unique
+  telemetry   Telemetry[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("satellites")
+}
+
+model Telemetry {
+  id          String   @id @default(uuid())
+  satelliteId String
+  satellite   Satellite @relation(fields: [satelliteId], references: [id])
+  data        Json
+  lineageId   String
+  createdAt   DateTime @default(now())
+
+  @@map("telemetry")
+}
